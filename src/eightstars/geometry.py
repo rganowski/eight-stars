@@ -107,7 +107,7 @@ class Straight:
             else:
                 # Parallel vertical straights
                 return None
-        elif self.x:
+        elif self.x is not None:
             # Only the first straight is vertical
             x = self.x
             y = other.a * x + other.b
