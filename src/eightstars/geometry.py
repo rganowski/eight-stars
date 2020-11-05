@@ -143,6 +143,7 @@ class Star:
         radius: float,
         first_corner_angle: float = 0,
         corners: int = 5,
+        style: int = 2,
         decimals: int = 5,
     ) -> None:
         """Initializes Star object basing on its center point, size given as
@@ -154,6 +155,12 @@ class Star:
             first_corner_angle (float, optional): first vertex slope in radians.
                 Defaults to 0.
             corners (int, optional): Number of corners. Defaults to 5.
+            style (int, optional): Style of a star. The inner vertices of the 
+                star are based on the intersection of the straights passing 
+                through the corner vertices. The style integer indicates which
+                straights are taken into account (connecting which corner 
+                vertices). 2 - second after the one in hand, 3 - third, and so
+                on. Defaults to 2.
             decimals (int, optional): number of decimal places for floats
             - see the explanation in Point class constructor.. Defaults to 5.
         """
@@ -182,12 +189,12 @@ class Star:
         straights = []
         for i in range(corners):
             straight = Straight(
-                corner_vertices[i], corner_vertices[(i + 2) % corners])
+                corner_vertices[i], corner_vertices[(i + style) % corners])
             straights.append(straight)
 
         inner_vertices = []
         for i in range(corners):
-            vertex = straights[i].intersection(straights[(i - 1) % corners])
+            vertex = straights[i].intersection(straights[(i - (style-1)) % corners])
             inner_vertices.append(vertex)
 
         self.vertices = list(
