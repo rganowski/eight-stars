@@ -133,6 +133,10 @@ class Straight:
             return f"y = {s}"
 
 
+class StarError(Exception):
+    pass
+
+
 class Star:
     """A star.
     """
@@ -155,10 +159,10 @@ class Star:
             first_corner_angle (float, optional): first vertex slope in radians.
                 Defaults to 0.
             corners (int, optional): Number of corners. Defaults to 5.
-            style (int, optional): Style of a star. The inner vertices of the 
-                star are based on the intersection of the straights passing 
+            style (int, optional): Style of a star. The inner vertices of the
+                star are based on the intersection of the straights passing
                 through the corner vertices. The style integer indicates which
-                straights are taken into account (connecting which corner 
+                straights are taken into account (connecting which corner
                 vertices). 2 - second after the one in hand, 3 - third, and so
                 on. Defaults to 2.
             decimals (int, optional): number of decimal places for floats
@@ -194,7 +198,17 @@ class Star:
 
         inner_vertices = []
         for i in range(corners):
-            vertex = straights[i].intersection(straights[(i - (style-1)) % corners])
+            try:
+                vertex = straights[i].intersection(
+                    straights[(i - (style-1)) % corners])
+            except CoincidentStraights:
+                raise StarError(
+                    "Unable to compute inner vertices for corners and  style. "
+                    "The straights must intersect, but are overlapping.")
+            if not vertex:
+                raise StarError(
+                    "Unable to compute inner vertices for corners and  style. "
+                    "The straights must intersect, but are parallel.")
             inner_vertices.append(vertex)
 
         self.vertices = list(
