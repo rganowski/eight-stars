@@ -144,8 +144,8 @@ class Star:
     def __init__(
         self,
         center: Point,
-        radius: float,
-        first_corner_angle: float = 0,
+        outer_diameter: float,
+        first_corner_slope: float = 0,
         corners: int = 5,
         style: int = 2,
         decimals: int = 5,
@@ -155,8 +155,8 @@ class Star:
 
         Args:
             center (Point): center point of a star.
-            radius (float): distance from center to corner vertices.
-            first_corner_angle (float, optional): first vertex slope in radians.
+            outer_diameter (float): outer diameter of a star
+            first_corner_slope (float, optional): first corner slope in radians.
                 Defaults to 0.
             corners (int, optional): Number of corners. Defaults to 5.
             style (int, optional): Style of a star. The inner vertices of the
@@ -171,22 +171,23 @@ class Star:
 
         assert corners > 4, "Star should have at least 5 corners"
         assert (
-            0 <= first_corner_angle <= 2 * pi
+            0 <= first_corner_slope <= 2 * pi
         ), "First corner slope should be between 0 and 2π"
 
-        self.O = center
-        self.r = radius
-        self.first_corner_angle = round(first_corner_angle, decimals)
+        self.center = center
+        self.outer_diameter = round(outer_diameter, decimals)
+        self.first_corner_slope = round(first_corner_slope, decimals)
 
         # vertices
         spacing_angle = 2 * pi / corners
 
         corner_vertices = []
+        outer_rarius = self.outer_diameter / 2
         for i in range(corners):
-            corner_angle = spacing_angle * i + self.first_corner_angle
+            corner_slope= spacing_angle * i + self.first_corner_slope
             vertex = Point(
-                self.O.x + sin(corner_angle) * radius,
-                self.O.y + cos(corner_angle) * radius,
+                self.center.x + sin(corner_slope) * outer_rarius,
+                self.center.y + cos(corner_slope) * outer_rarius
             )
             corner_vertices.append(vertex)
 
