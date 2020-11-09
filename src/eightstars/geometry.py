@@ -149,29 +149,36 @@ class Star:
         corners: int = 5,
         style: int = 2,
         decimals: int = 5,
+        inner_diameter: float = None
     ) -> None:
         """Initializes Star object basing on its center point, size given as
-        a radius, first corner vertex slope and number of corners.
+        a radius, first corner vertex slope, number of corners and
+        style or inner vertices diameter.
 
         Args:
             center (Point): center point of a star.
-            outer_diameter (float): outer diameter of a star
+            outer_diameter (float): outer diameter of a star (all corners 
+                are lied on a circle of this diameter) 
             first_corner_slope (float, optional): first corner slope in radians.
                 Defaults to 0.
             corners (int, optional): Number of corners. Defaults to 5.
             style (int, optional): Style of a star. The inner vertices of the
-                star are based on the intersection of the straights passing
+                star may be based on the intersection of the straights passing
                 through the corner vertices. The style integer indicates which
                 straights are taken into account (connecting which corner
                 vertices). 2 - second after the one in hand, 3 - third, and so
-                on. Defaults to 2.
+                on. Defaults to 2. This parameter counts only if inner diameter 
+                is not specified.
             decimals (int, optional): number of decimal places for floats
             - see the explanation in Point class constructor.. Defaults to 5.
+            inner_diameter (float, optional): diameter of inner vertices
+                placement. Defaults to None. If provided, style parameter is
+                not taken into consideration.
         """
 
-        assert corners > 4, "Star should have at least 5 corners"
+        assert corners > 2, "Star should have at least 3 corners"
         assert (
-            0 <= first_corner_slope <= 2 * pi
+            0 <= first_corner_slope < 2 * pi
         ), "First corner slope should be between 0 and 2π"
 
         self.center = center
@@ -182,35 +189,46 @@ class Star:
         spacing_angle = 2 * pi / corners
 
         corner_vertices = []
-        outer_rarius = self.outer_diameter / 2
+        outer_radius = self.outer_diameter / 2
         for i in range(corners):
-            corner_slope= spacing_angle * i + self.first_corner_slope
+            corner_slope = spacing_angle * i + self.first_corner_slope
             vertex = Point(
-                self.center.x + sin(corner_slope) * outer_rarius,
-                self.center.y + cos(corner_slope) * outer_rarius
+                self.center.x + sin(corner_slope) * outer_radius,
+                self.center.y + cos(corner_slope) * outer_radius
             )
             corner_vertices.append(vertex)
 
-        straights = []
-        for i in range(corners):
-            straight = Straight(
-                corner_vertices[i], corner_vertices[(i + style) % corners])
-            straights.append(straight)
-
         inner_vertices = []
-        for i in range(corners):
-            try:
-                vertex = straights[i].intersection(
-                    straights[(i - (style-1)) % corners])
-            except CoincidentStraights:
-                raise StarError(
-                    "Unable to compute inner vertices for corners and  style. "
-                    "The straights must intersect, but are overlapping.")
-            if not vertex:
-                raise StarError(
-                    "Unable to compute inner vertices for corners and  style. "
-                    "The straights must intersect, but are parallel.")
-            inner_vertices.append(vertex)
+        if inner_diameter is None:
+            # Inner vertices paces according to `style`
+            straights = []
+            for i in range(corners):
+                straight = Straight(
+                    corner_vertices[i], corner_vertices[(i + style) % corners])
+                straights.append(straight)
+            for i in range(corners):
+                try:
+                    vertex = straights[i].intersection(
+                        straights[(i - (style-1)) % corners])
+                except CoincidentStraights:
+                    raise StarError(
+                        "Unable to compute inner vertices for corners and style."
+                        " The straights must intersect, but are overlapping.")
+                if not vertex:
+                    raise StarError(
+                        "Unable to compute inner vertices for corners and  style."
+                        " The straights must intersect, but are parallel.")
+                inner_vertices.append(vertex)
+        else:
+            # Inner vertices placed according to `inner diameter`
+            first_inner_vertex_slope = first_corner_slope + spacing_angle / 2
+            inner_radius = inner_diameter / 2
+            for i in range(corners):
+                vertex_slope = first_inner_vertex_slope + i * spacing_angle
+                x = inner_radius * sin(vertex_slope) + center.x
+                y = inner_radius * cos(vertex_slope) + center.y
+                vertex = Point(x, y)
+                inner_vertices.append(vertex)
 
         self.vertices = list(
             chain(*zip(corner_vertices, inner_vertices))
