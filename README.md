@@ -14,6 +14,7 @@ And then turned out that there are so many different stars.
 from itertools import chain
 from matplotlib import pyplot as plt
 
+from eightstars.geometry import Star, Point
 
 plt.figure(figsize=(11,1))
 plt.axis('off')
