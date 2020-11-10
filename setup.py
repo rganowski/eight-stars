@@ -1,7 +1,7 @@
 from setuptools import find_packages, setup
 
 setup(
-    name="eightstars",
+    name="eight-stars",
     version="2.0.0",
     author="Robert Ganowski",
     author_email="robert.ganowski@gmail.com",
