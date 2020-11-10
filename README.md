@@ -3,6 +3,12 @@
 
 ![eight-stars](img/eight-stars.png)
 
+## Installation
+
+```sh
+pip install eight-stars==1.0.0
+```
+
 ## Have you ever tried to draw a star?
 
 Well, I only once, being pissed off. It's certainly nothing special, but if you want to repeat the experience it gets boring. So this is what those just few lines of Python code are for.
